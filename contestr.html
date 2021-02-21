@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		  <meta charset="utf-8" />
+		  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" /><!-- Bootstrap CSS -->
+		  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+		    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+		  <link rel="stylesheet" href="css/style.css">
+
+		  <link rel='shortcut icon' href='images/favicon.ico' type='image/x-icon' />
+
+		  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		  <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,700&amp;display=swap" rel="stylesheet">
+		  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap" rel="stylesheet">
+		<title>ContestR | Upcoming Contests in Next 24 Hours</title>
+	</head>
+	<body onload="func()">
+		<div class="container-fluid" style="padding: 20px">
+			<h4>ContestR - Upcoming Contests in Next 24 Hours</h4>
+			<ul style="margin-top: 20px" id="contests" class="list-group"></ul>
+			<hr>
+			<h5 style="margin-top: 20px">Text Format <button class="btn btn-secondary btn-sm" onclick="copyFunc()" id="copy-btn">Copy</button></h5>
+			<div class="card card-body" id="text">Upcoming Contests in Next 24 Hours<br><br></div>
+		</div>
+
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	</body>
+</html>
+
+<script type="text/javascript">
+function createNode(element) {
+    return document.createElement(element);
+}
+
+function append(parent, el) {
+  return parent.appendChild(el);
+}
+
+function func() {
+	  const ul = document.getElementById('contests');
+	  const txt = document.getElementById('text');
+	  const response = fetch('https://kontests.net/api/v1/all').then(rsp => {
+	  	return rsp.json();
+	  }).then(response => {
+	  	response.sort(function(a, b) {
+	  		return a.start_time - b.start_time;
+	  	});
+	  	for (var i = 0; i < response.length; i++) {
+	  		let diff = (new Date(response[i].start_time) - new Date()) / (1000 * 3600);
+	  		if (diff <= 24.00 && new Date() < new Date(new Date(response[i].start_time))) {
+		  		let li = createNode('li');
+		  		let h5 = createNode('h5');
+		  		let bold = createNode('b');
+		  		append(h5, bold);
+
+		  		h5.setAttribute('style', 'font-weight:bold');
+		  		li.className = "list-group-item";
+
+		  		let contestName = response[i].name;
+
+		  		if (contestName.length >= response[i].site.length) {
+			  		if (contestName.substr(0, response[i].site.length) != response[i].site) {
+			  			contestName = response[i].site + " " + contestName;
+			  		}
+			  	} else {
+			  		contestName = response[i].site + " " + contestName;
+			  	}
+
+		  		let p = document.createTextNode(contestName);
+
+		  		txt.innerHTML += ">> " + contestName;
+		  		txt.innerHTML += "<br>Start Time: " + new Date(response[i].start_time);
+
+		  		append(h5, p);
+		  		append(li, h5);
+
+		  		let div = document.createElement('h5');
+		  		div.innerHTML += "Start Time: " + new Date(response[i].start_time);
+		  		append(li, div);
+
+		  		div = document.createElement('h5');
+
+		  		if (Math.floor(response[i].duration/(3600)) > 1) {
+		  			div.innerHTML += "Duration: " + Math.floor(response[i].duration/ 3600) + " Hours";
+		  			txt.innerHTML += "<br>Duration: " + Math.floor(response[i].duration/ 3600) + " Hours";
+
+		  			if (parseInt(response[i].duration) % 3600 != 0) {
+		  				div.innerHTML += " " + Math.floor((parseInt(response[i].duration) % 3600) / 60) + " Minutes";
+		  				txt.innerHTML += " " + Math.floor((parseInt(response[i].duration) % 3600) / 60) + " Minutes";
+		  			}
+
+		  			append(li, div);
+		  		} else if (Math.floor(response[i].duration/(3600)) > 0) {
+		  			div.innerHTML += "Duration: " + Math.floor(response[i].duration/ 3600) + " Hour";
+		  			txt.innerHTML += "<br>Duration: " + Math.floor(response[i].duration/ 3600) + " Hour";
+
+		  			if (parseInt(response[i].duration) % 3600 != 0) {
+		  				div.innerHTML += " " + Math.floor((parseInt(response[i].duration) % 3600) / 60) + " Minutes";
+		  				txt.innerHTML += " " + Math.floor((parseInt(response[i].duration) % 3600) / 60) + " Minutes";
+		  			}
+
+		  			append(li, div);
+		  		} else {
+		  			if (parseInt(response[i].duration) % 3600 != 0) {
+		  				div.innerHTML += "Duration: " + Math.floor(response[i].duration / 60) + " Minutes";
+		  				txt.innerHTML += "<br>Duration: " + Math.floor(response[i].duration / 60) + " Minutes";
+		  			}
+
+		  			append(li, div);
+		  		}
+
+		  		p = document.createTextNode('Contest Link');
+		  		let a = document.createElement('a');
+
+		  		txt.innerHTML += "<br>Contest Link: " + response[i].url;
+
+		  		a.href = response[i].url;
+		  		a.setAttribute('role', 'button');
+		  		a.setAttribute('target', '_blank');
+		  		a.setAttribute('class', 'btn btn-primary btn-sm');
+
+		  		li.setAttribute('style', 'padding-bottom:20px')
+
+		  		append(a, p);
+		  		append(li, a);
+		  		append(ul, li);
+
+
+		  		txt.innerHTML += "<br><br>"
+		  	}
+	  	}
+	  	txt.innerHTML += 'Generated by - ContestR<br>';
+	  })
+}
+
+function wait(ms){
+   var start = new Date().getTime();
+   var end = start;
+   while(end < start + ms) {
+     end = new Date().getTime();
+  }
+}
+
+async function copyFunc() {
+  var range = document.createRange();
+  range.selectNode(document.getElementById("text"));
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+  document.execCommand("copy");
+  window.getSelection().removeAllRanges();
+
+  document.getElementById('copy-btn').innerHTML = "Copied";
+  document.getElementById('copy-btn').setAttribute('class', 'btn btn-secondary btn-sm disabled')
+}
+</script>
